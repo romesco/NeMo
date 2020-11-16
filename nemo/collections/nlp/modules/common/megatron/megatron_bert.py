@@ -44,11 +44,12 @@ class MegatronBertEncoder(BertModule):
         tokenizer_type (str): tokenizer type, currently only 'BertWordPieceLowerCase' supported.
     """
 
-    def __init__(self, model_name, config, vocab_file, model_parallel_size=None):
+    def __init__(self, model_name, config, vocab_file, model_parallel_size=None, model_parallel_rank=None):
 
         super().__init__()
 
         self._model_parallel_size = model_parallel_size
+        self._model_parallel_rank = model_parallel_rank
         self._restore_path = None
         self._app_state = None
         self._model_name = model_name
@@ -68,6 +69,7 @@ class MegatronBertEncoder(BertModule):
 
             # must be set for model parallel megatron-lm
             os.environ["WORLD_SIZE"] = str(app_state.world_size)
+            os.environ["RANK"] = str(self._model_parallel_rank)
 
             # used to set model_parallel_size in megatron-lm argparser
             def _update_model_parallel_arg(parser):
